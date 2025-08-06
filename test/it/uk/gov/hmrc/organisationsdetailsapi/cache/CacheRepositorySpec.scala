@@ -44,7 +44,7 @@ class CacheRepositorySpec
 
   lazy val fakeApplication = new GuiceApplicationBuilder()
     .configure("mongodb.uri" -> mongoUri, "cache.ttlInSeconds" -> cacheTtl)
-    .bindings(Seq(): _*)
+    .bindings(Seq()*)
     .build()
 
   private val shortLivedCache = fakeApplication.injector.instanceOf[CacheRepository]
@@ -64,7 +64,7 @@ class CacheRepositorySpec
 
   "cache" should {
     "store the encrypted version of a value" in {
-      shortLivedCache.cache(id, testValue)(TestClass.format) map { _ =>
+      shortLivedCache.cache(id, testValue)(using TestClass.format) map { _ =>
         retrieveRawCachedValue(id) shouldBe JsString("6aZpkTxkw3C4e5xTyfy3Lf/OZOFz+GcaSkeFI++0HOs=")
       }
     }
@@ -72,25 +72,25 @@ class CacheRepositorySpec
     "update a cached value for a given id and key" in {
       val newValue = TestClass("three", "four")
 
-      await(shortLivedCache.cache(id, testValue)(TestClass.format))
+      await(shortLivedCache.cache(id, testValue)(using TestClass.format))
       retrieveRawCachedValue(id) shouldBe JsString("6aZpkTxkw3C4e5xTyfy3Lf/OZOFz+GcaSkeFI++0HOs=")
 
-      await(shortLivedCache.cache(id, newValue)(TestClass.format))
+      await(shortLivedCache.cache(id, newValue)(using TestClass.format))
       retrieveRawCachedValue(id) shouldBe JsString("8jVeGr+Ivyk5mkBj2VsQE3G+oPGXoYejrSp5hfVAPYU=")
     }
   }
 
   "fetch" should {
     "retrieve the unencrypted cached value for a given id and key" in {
-      shortLivedCache.cache(id, testValue)(TestClass.format) flatMap { _ =>
-        shortLivedCache.fetchAndGetEntry[TestClass](id)(TestClass.format) map { value =>
+      shortLivedCache.cache(id, testValue)(using TestClass.format) flatMap { _ =>
+        shortLivedCache.fetchAndGetEntry[TestClass](id)(using TestClass.format) map { value =>
           value shouldBe Some(testValue)
         }
       }
     }
 
     "return None if no cached value exists for a given id and key" in {
-      shortLivedCache.fetchAndGetEntry[TestClass](id)(TestClass.format) map { value =>
+      shortLivedCache.fetchAndGetEntry[TestClass](id)(using TestClass.format) map { value =>
         value shouldBe None
       }
     }

@@ -53,7 +53,7 @@ class OrganisationsMatchingConnectorSpec
   def externalServices: Seq[String] = Seq.empty
 
   override def fakeApplication(): Application = new GuiceApplicationBuilder()
-    .bindings(bindModules: _*)
+    .bindings(bindModules*)
     .configure(
       "cache.enabled" -> false,
       "auditing.enabled" -> false,

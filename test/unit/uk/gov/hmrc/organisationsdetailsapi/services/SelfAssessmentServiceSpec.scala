@@ -171,7 +171,7 @@ class SelfAssessmentServiceSpec extends AnyWordSpec with Matchers {
         val response: SelfAssessmentResponse = Await.result(selfAssessmentService.get(matchIdUUID, endpoint, scopes), 5 seconds)
 
         verify(mockIfConnector, times(2))
-          .getSaReturnDetails(any(), any(), any())(any(), any(), any())
+          .getSaReturnDetails(any(), any(), any())(using any(), any(), any())
 
 
         response.selfAssessmentStartDate.get shouldBe LocalDate.of(2015, 4, 21)

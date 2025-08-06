@@ -169,7 +169,7 @@ class CorporationTaxServiceSpec extends AnyWordSpec with Matchers {
         val response: CorporationTaxResponse = Await.result(corporationTaxService.get(matchIdUUID, endpoint, scopes), 5 seconds)
 
         verify(mockIfConnector, times(2))
-          .getCtReturnDetails(any(), any(), any())(any(), any(), any())
+          .getCtReturnDetails(any(), any(), any())(using any(), any(), any())
 
         response.dateOfRegistration.get shouldBe LocalDate.of(2015, 4, 21)
         response.taxSolvencyStatus.get shouldBe "V"

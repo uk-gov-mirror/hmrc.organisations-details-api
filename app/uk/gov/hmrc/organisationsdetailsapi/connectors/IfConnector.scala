@@ -117,7 +117,7 @@ class IfConnector @Inject() (
   ) =
     recover(
       http.get(url"$url")
-        .transform(_.addHttpHeaders(setHeaders(request): _*))
+        .transform(_.addHttpHeaders(setHeaders(request)*))
         .execute[T]
           map { response =>
           auditHelper.auditIfApiResponse(extractCorrelationId(request), matchId, request, url, response.toString)
@@ -138,7 +138,7 @@ class IfConnector @Inject() (
   ) =
     recover(
       http.post(url"$url")
-        .transform(_.addHttpHeaders(setHeaders(request): _*))
+        .transform(_.addHttpHeaders(setHeaders(request)*))
         .withBody(Json.toJson(body)).execute[O]
         map { response =>
         auditHelper.auditIfApiResponse(extractCorrelationId(request), matchId, request, url, response.toString)

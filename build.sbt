@@ -34,7 +34,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     onLoadMessage := "",
     majorVersion := 0,
-    scalaVersion := "3.3.5",
+    scalaVersion := "3.7.1",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test(),
     scalacOptions += "-Wconf:src=routes/.*:s",
     Test / testOptions := Seq.empty,
@@ -58,6 +58,12 @@ lazy val microservice = Project(appName, file("."))
     ComponentTest / testOptions := Seq(Tests.Filter(componentFilter)),
     ComponentTest / unmanagedSourceDirectories := (ComponentTest / baseDirectory)(base => Seq(base / "test")).value,
     ComponentTest / parallelExecution := false
+  )
+  .settings(
+    scalacOptions ++= Seq(
+      "-source:3.7-migration",
+      "-rewrite"
+    )
   )
   .settings(scoverageSettings *)
   .settings(

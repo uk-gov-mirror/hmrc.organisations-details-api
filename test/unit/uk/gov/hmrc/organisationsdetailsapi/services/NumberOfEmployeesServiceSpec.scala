@@ -183,7 +183,7 @@ class NumberOfEmployeesServiceSpec extends AnyWordSpec with Matchers {
         when(mockScopesService.getValidFieldsForCacheKey(scopes.toList, Seq(endpoint)))
           .thenReturn("DEF")
 
-        when(mockIfConnector.getEmployeeCount(eqTo(matchId), eqTo(utr), eqTo(ifRequest), eqTo(Some("ABC")))(any(), any(), any()))
+        when(mockIfConnector.getEmployeeCount(eqTo(matchId), eqTo(utr), eqTo(ifRequest), eqTo(Some("ABC")))(using any(), any(), any()))
           .thenReturn(Future.failed(UpstreamErrorResponse("""¯\_(ツ)_/¯""", 503, 503)))
           .thenReturn(Future.successful(EmployeeCountResponse(
             Some("2019-10-01"),
@@ -203,7 +203,7 @@ class NumberOfEmployeesServiceSpec extends AnyWordSpec with Matchers {
         val result: NumberOfEmployeesResponse = response.get.head
 
         verify(mockIfConnector, times(2))
-          .getEmployeeCount(any(), any(), any(), any())(any(), any(), any())
+          .getEmployeeCount(any(), any(), any(), any())(using any(), any(), any())
 
         result.counts.get.length shouldBe 2
         result.payeReference.get shouldBe "456/RT882d"

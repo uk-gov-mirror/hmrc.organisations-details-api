@@ -43,10 +43,10 @@ object CorporationTaxReturnDetails {
 
   implicit val accountingPeriodFormat: Format[AccountingPeriod] = Format[AccountingPeriod](
     (
-      (JsPath \ "apStartDate").readNullable[String](pattern(apDatePattern, "apStartDate not in correct format")) and
-        (JsPath \ "apEndDate").readNullable[String](pattern(apDatePattern, "apEndDate not in correct format")) and
+      (JsPath \ "apStartDate").readNullable[String](using pattern(apDatePattern, "apStartDate not in correct format")) and
+        (JsPath \ "apEndDate").readNullable[String](using pattern(apDatePattern, "apEndDate not in correct format")) and
         (JsPath \ "turnover").readNullable[Int]
-    )(AccountingPeriod.apply _),
+    )(AccountingPeriod.apply),
     (
       (JsPath \ "apStartDate").writeNullable[String] and
         (JsPath \ "apEndDate").writeNullable[String] and
@@ -57,12 +57,12 @@ object CorporationTaxReturnDetails {
   implicit val corporationTaxReturnDetailsResponseFormat: Format[CorporationTaxReturnDetailsResponse] =
     Format[CorporationTaxReturnDetailsResponse](
       (
-        (JsPath \ "utr").readNullable[String](pattern(utrPattern, "Invalid UTR format")) and
+        (JsPath \ "utr").readNullable[String](using pattern(utrPattern, "Invalid UTR format")) and
           (JsPath \ "taxpayerStartDate")
-            .readNullable[String](pattern(taxpayerStartDatePattern, "Invalid taxpayer start date")) and
-          (JsPath \ "taxSolvencyStatus").readNullable[String](verifying(validTaxSolvencyStatus)) and
+            .readNullable[String](using pattern(taxpayerStartDatePattern, "Invalid taxpayer start date")) and
+          (JsPath \ "taxSolvencyStatus").readNullable[String](using verifying(validTaxSolvencyStatus)) and
           (JsPath \ "accountingPeriods").readNullable[Seq[AccountingPeriod]]
-      )(CorporationTaxReturnDetailsResponse.apply _),
+      )(CorporationTaxReturnDetailsResponse.apply),
       (
         (JsPath \ "utr").writeNullable[String] and
           (JsPath \ "taxpayerStartDate").writeNullable[String] and
