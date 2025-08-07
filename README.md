@@ -29,9 +29,9 @@ on [DevHub](https://developer.qa.tax.service.gov.uk/api-documentation/docs/api/s
 
 ### Running tests
 
-Unit, integration and component tests can be run with the following:
+Run all the tests with coverage report:
 
-    sbt test it:test component:test
+    sbt clean compile coverage test it:test component:test coverageReport
 
 ### License
 

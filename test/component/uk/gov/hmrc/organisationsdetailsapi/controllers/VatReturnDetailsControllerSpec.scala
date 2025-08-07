@@ -43,17 +43,18 @@ class VatReturnDetailsControllerSpec extends BaseSpec {
       vrn = Some(vrn),
       appDate = Some("20160425"),
       extractDate = Some("2023-04-10"),
-      vatPeriods = Some(Seq(
-        IfVatPeriod(
-          periodKey = Some("23AG"),
-          billingPeriodFromDate = Some("2023-08-30"),
-          billingPeriodToDate = Some("2023-08-30"),
-          numDaysAssessed = Some(30),
-          box6Total = Some(6542),
-          returnType = Some("Regular Return"),
-          source = Some("ADR(ETMP)")
+      vatPeriods = Some(
+        Seq(
+          IfVatPeriod(
+            periodKey = Some("23AG"),
+            billingPeriodFromDate = Some("2023-08-30"),
+            billingPeriodToDate = Some("2023-08-30"),
+            numDaysAssessed = Some(30),
+            box6Total = Some(6542),
+            returnType = Some("Regular Return"),
+            source = Some("ADR(ETMP)")
+          )
         )
-      )
       )
     )
 
@@ -61,17 +62,18 @@ class VatReturnDetailsControllerSpec extends BaseSpec {
       vrn = Some(vrn),
       appDate = Some(appDate),
       extractDate = Some(extractDate),
-      vatPeriods = Some(Seq(
-        IfVatPeriod(
-          periodKey = Some("23AG"),
-          billingPeriodFromDate = Some("2023-08-30"),
-          billingPeriodToDate = Some("2023-08-30"),
-          numDaysAssessed = Some(30),
-          box6Total = Some(6542),
-          returnType = Some("Regular Return"),
-          source = Some("ADR(ETMP)")
+      vatPeriods = Some(
+        Seq(
+          IfVatPeriod(
+            periodKey = Some("23AG"),
+            billingPeriodFromDate = Some("2023-08-30"),
+            billingPeriodToDate = Some("2023-08-30"),
+            numDaysAssessed = Some(30),
+            box6Total = Some(6542),
+            returnType = Some("Regular Return"),
+            source = Some("ADR(ETMP)")
+          )
         )
-      )
       )
     )
   }
@@ -98,7 +100,9 @@ class VatReturnDetailsControllerSpec extends BaseSpec {
       response.code mustBe OK
 
       Json.parse(response.body) mustBe Json.obj(
-        "_links" -> Json.obj("self" -> Json.obj("href" -> s"/organisations/details/vat?matchId=$matchId&appDate=$appDate"))
+        "_links" -> Json.obj(
+          "self" -> Json.obj("href" -> s"/organisations/details/vat?matchId=$matchId&appDate=$appDate")
+        )
       ) ++ Json.toJson(validResponse).asInstanceOf[JsObject]
     }
 
@@ -232,8 +236,6 @@ class VatReturnDetailsControllerSpec extends BaseSpec {
       val response = Http(s"$serviceUrl/vat?matchId=$matchId&appDate=$appDate")
         .headers(requestHeaders(acceptHeaderVP1))
         .asString
-
-      println(response.body)
 
       response.code mustBe NOT_FOUND
 

@@ -59,18 +59,7 @@ lazy val microservice = Project(appName, file("."))
     ComponentTest / unmanagedSourceDirectories := (ComponentTest / baseDirectory)(base => Seq(base / "test")).value,
     ComponentTest / parallelExecution := false
   )
-  .settings(
-    scalacOptions ++= Seq(
-      "-source:3.7-migration",
-      "-rewrite"
-    )
-  )
   .settings(scoverageSettings *)
-  .settings(
-    resolvers ++= Seq(
-      Resolver.jcenterRepo
-    )
-  )
   .settings(Compile / unmanagedResourceDirectories += baseDirectory.value / "resources")
 
 lazy val ComponentTest = config("component") extend Test
