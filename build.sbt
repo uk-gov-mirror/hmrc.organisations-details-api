@@ -34,7 +34,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     onLoadMessage := "",
     majorVersion := 0,
-    scalaVersion := "3.3.5",
+    scalaVersion := "3.7.1",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test(),
     scalacOptions += "-Wconf:src=routes/.*:s",
     Test / testOptions := Seq.empty,
@@ -60,11 +60,6 @@ lazy val microservice = Project(appName, file("."))
     ComponentTest / parallelExecution := false
   )
   .settings(scoverageSettings *)
-  .settings(
-    resolvers ++= Seq(
-      Resolver.jcenterRepo
-    )
-  )
   .settings(Compile / unmanagedResourceDirectories += baseDirectory.value / "resources")
 
 lazy val ComponentTest = config("component") extend Test

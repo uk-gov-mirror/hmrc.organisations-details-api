@@ -66,7 +66,7 @@ class IfConnectorSpec
   def externalServices: Seq[String] = Seq.empty
 
   override def fakeApplication(): Application = new GuiceApplicationBuilder()
-    .bindings(bindModules: _*)
+    .bindings(bindModules*)
     .configure(
       "cache.enabled" -> false,
       "auditing.enabled" -> false,
@@ -139,7 +139,7 @@ class IfConnectorSpec
       intercept[InternalServerException] {
         await(
           underTest.getCtReturnDetails(UUID.randomUUID().toString, utr, Some("fields(A,B,C)"))(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -147,7 +147,7 @@ class IfConnectorSpec
       }
 
       verify(underTest.auditHelper,
-        times(1)).auditIfApiFailure(any(), any(), any(), any(), any())(any())
+        times(1)).auditIfApiFailure(any(), any(), any(), any(), any())(using any())
 
     }
 
@@ -163,7 +163,7 @@ class IfConnectorSpec
       intercept[BadRequestException] {
         await(
           underTest.getCtReturnDetails(UUID.randomUUID().toString, utr, Some("fields(A,B,C)"))(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -171,7 +171,7 @@ class IfConnectorSpec
       }
 
       verify(underTest.auditHelper,
-        times(1)).auditIfApiFailure(any(), any(), any(), any(), any())(any())
+        times(1)).auditIfApiFailure(any(), any(), any(), any(), any())(using any())
     }
 
     "Fail when IF returns a NOT_FOUND and return error with empty body" in new Setup {
@@ -186,14 +186,14 @@ class IfConnectorSpec
       intercept[InternalServerException] {
         await(
           underTest.getCtReturnDetails(UUID.randomUUID().toString, utr, Some("fields(A,B,C)"))(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
         )
       }
       verify(underTest.auditHelper,
-        times(1)).auditIfApiFailure(any(), any(), any(), any(), any())(any())
+        times(1)).auditIfApiFailure(any(), any(), any(), any(), any())(using any())
     }
 
     "getCtReturnDetails" should {
@@ -217,7 +217,7 @@ class IfConnectorSpec
 
         val result: CorporationTaxReturnDetailsResponse = await(
           underTest.getCtReturnDetails(UUID.randomUUID().toString, utr, Some("fields(A,B,C)"))(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -226,7 +226,7 @@ class IfConnectorSpec
         result shouldBe emptyCtReturn
 
         verify(underTest.auditHelper,
-          times(1)).auditIfApiFailure(any(), any(), any(), any(), contains("""NO_DATA_FOUND"""))(any())
+          times(1)).auditIfApiFailure(any(), any(), any(), any(), contains("""NO_DATA_FOUND"""))(using any())
       }
 
       "successfully parse valid CorporationTaxReturnDetailsResponse from IF response" in new Setup {
@@ -245,7 +245,7 @@ class IfConnectorSpec
 
         val result: CorporationTaxReturnDetailsResponse = await(
           underTest.getCtReturnDetails(UUID.randomUUID().toString, utr, Some("fields(A,B,C)"))(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -254,7 +254,7 @@ class IfConnectorSpec
         result shouldBe taxReturn
 
         verify(underTest.auditHelper,
-          times(0)).auditIfApiFailure(any(), any(), any(), any(), any())(any())
+          times(0)).auditIfApiFailure(any(), any(), any(), any(), any())(using any())
 
       }
 
@@ -276,7 +276,7 @@ class IfConnectorSpec
         intercept[InternalServerException] {
           await(
             underTest.getCtReturnDetails(UUID.randomUUID().toString, utr, Some("fields(A,B,C)"))(
-              hc,
+              using hc,
               FakeRequest().withHeaders(sampleCorrelationIdHeader),
               ec
             )
@@ -284,7 +284,7 @@ class IfConnectorSpec
         }
 
         verify(underTest.auditHelper,
-          times(1)).auditIfApiFailure(any(), any(), any(), any(), matches("^Error parsing IF response"))(any())
+          times(1)).auditIfApiFailure(any(), any(), any(), any(), matches("^Error parsing IF response"))(using any())
 
       }
     }
@@ -314,7 +314,7 @@ class IfConnectorSpec
         }
 
         verify(underTest.auditHelper, times(1))
-          .auditIfApiFailure(any(), any(), any(), any(), contains("NO_VAT_RETURNS_DETAIL_FOUND"))(any())
+          .auditIfApiFailure(any(), any(), any(), any(), contains("NO_VAT_RETURNS_DETAIL_FOUND"))(using any())
       }
 
       "successfully parse valid VatReturnDetailsResponse from IF response" in new Setup {
@@ -339,7 +339,7 @@ class IfConnectorSpec
         result shouldBe vatReturn
 
         verify(underTest.auditHelper, times(1))
-          .auditIfApiResponse(any(), any(), any(), any(), any())(any())
+          .auditIfApiResponse(any(), any(), any(), any(), any())(using any())
       }
     }
 
@@ -366,7 +366,7 @@ class IfConnectorSpec
 
         val result: SelfAssessmentReturnDetailResponse = await(
           underTest.getSaReturnDetails(UUID.randomUUID().toString, utr, None)(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -375,7 +375,7 @@ class IfConnectorSpec
         result shouldBe emptySaReturn
 
         verify(underTest.auditHelper,
-          times(1)).auditIfApiFailure(any(), any(), any(), any(), contains("""NO_DATA_FOUND"""))(any())
+          times(1)).auditIfApiFailure(any(), any(), any(), any(), contains("""NO_DATA_FOUND"""))(using any())
       }
 
       "successfully parse valid SelfAssessmentReturnDetailsResponse from IF response" in new Setup {
@@ -393,7 +393,7 @@ class IfConnectorSpec
 
         val result: SelfAssessmentReturnDetailResponse = await(
           underTest.getSaReturnDetails(UUID.randomUUID().toString, utr, None)(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -402,7 +402,7 @@ class IfConnectorSpec
         result shouldBe saReturn
 
         verify(underTest.auditHelper,
-          times(0)).auditIfApiFailure(any(), any(), any(), any(), any())(any())
+          times(0)).auditIfApiFailure(any(), any(), any(), any(), any())(using any())
       }
 
       "successfully parse invalid SelfAssessmentReturnDetailsResponse from IF response" in new Setup {
@@ -421,7 +421,7 @@ class IfConnectorSpec
         intercept[InternalServerException] {
           await(
             underTest.getSaReturnDetails(UUID.randomUUID().toString, utr, None)(
-              hc,
+              using hc,
               FakeRequest().withHeaders(sampleCorrelationIdHeader),
               ec
             )
@@ -429,7 +429,7 @@ class IfConnectorSpec
         }
 
         verify(underTest.auditHelper,
-          times(1)).auditIfApiFailure(any(), any(), any(), any(), matches("^Error parsing IF response"))(any())
+          times(1)).auditIfApiFailure(any(), any(), any(), any(), matches("^Error parsing IF response"))(using any())
 
       }
     }
@@ -460,7 +460,7 @@ class IfConnectorSpec
 
         val result: EmployeeCountResponse = await(
           underTest.getEmployeeCount(UUID.randomUUID().toString, utr, employeeCountRequest, None)(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -486,7 +486,7 @@ class IfConnectorSpec
 
         val result: EmployeeCountResponse = await(
           underTest.getEmployeeCount(UUID.randomUUID().toString, utr, employeeCountRequest, None)(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -495,7 +495,7 @@ class IfConnectorSpec
         result shouldBe employeeCountResponse
 
         verify(underTest.auditHelper,
-          times(0)).auditIfApiFailure(any(), any(), any(), any(), any())(any())
+          times(0)).auditIfApiFailure(any(), any(), any(), any(), any())(using any())
 
       }
 
@@ -517,7 +517,7 @@ class IfConnectorSpec
         intercept[InternalServerException] {
           await(
             underTest.getEmployeeCount(UUID.randomUUID().toString, utr, employeeCountRequest, None)(
-              hc,
+              using hc,
               FakeRequest().withHeaders(sampleCorrelationIdHeader),
               ec
             )
@@ -525,7 +525,7 @@ class IfConnectorSpec
         }
 
         verify(underTest.auditHelper,
-          times(1)).auditIfApiFailure(any(), any(), any(), any(), matches("^Error parsing IF response"))(any())
+          times(1)).auditIfApiFailure(any(), any(), any(), any(), matches("^Error parsing IF response"))(using any())
 
       }
     }
@@ -556,7 +556,7 @@ class IfConnectorSpec
       intercept[BadRequestException] {
         await(
           underTest.getEmployeeCount(UUID.randomUUID().toString, utr, employeeCountRequest, None)(
-            hc,
+            using hc,
             FakeRequest().withHeaders(sampleCorrelationIdHeader),
             ec
           )
@@ -564,7 +564,7 @@ class IfConnectorSpec
       }
 
       verify(underTest.auditHelper,
-        times(1)).auditIfApiFailure(any(), any(), any(), any(), contains("INVALID_PAYLOAD"))(any())
+        times(1)).auditIfApiFailure(any(), any(), any(), any(), contains("INVALID_PAYLOAD"))(using any())
     }
   }
 }

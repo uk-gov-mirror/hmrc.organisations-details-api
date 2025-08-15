@@ -177,7 +177,7 @@ class VatReturnDetailsServiceSpec extends AnyWordSpec with Matchers {
         val response: VatReturnsDetailsResponse = Await.result(vatReturnDetailsService.get(matchIdUUID, appDate, scopes), 10 seconds)
 
         verify(mockIfConnector, times(2))
-          .getVatReturnDetails(any(), any(), any(), any())(any(), any(), any())
+          .getVatReturnDetails(any(), any(), any(), any())(using any(), any(), any())
 
         response.vrn.get shouldBe vrn
         response.vatPeriods.get.length shouldBe 1

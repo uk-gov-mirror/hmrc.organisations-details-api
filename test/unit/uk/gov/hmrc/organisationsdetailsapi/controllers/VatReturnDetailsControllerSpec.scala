@@ -98,16 +98,16 @@ class VatReturnDetailsControllerSpec
 
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
 
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
 
-      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(any(), any(), any()))
+      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(using any(), any(), any()))
         .thenReturn(Future.successful(sampleResponse))
 
       val result = await(controller.vat(sampleMatchIdUUID, appDate)(fakeRequest))
 
       verify(mockAuditHelper, times(1)).auditApiResponse(
-        any(), any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any(), any())(using any())
 
       jsonBodyOf(result) shouldBe
         Json.obj(
@@ -116,14 +116,14 @@ class VatReturnDetailsControllerSpec
     }
 
     "fail when correlationId is not provided" in {
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
 
       val response = await(controller.vat(sampleMatchIdUUID, appDate)(FakeRequest()))
 
       verify(mockAuditHelper, times(1)).auditApiFailure(
-        any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any())(using any())
 
       status(response) shouldBe BAD_REQUEST
       jsonBodyOf(response) shouldBe Json.parse(
@@ -137,7 +137,7 @@ class VatReturnDetailsControllerSpec
     }
 
     "fail when correlationId is not malformed" in {
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
 
@@ -145,7 +145,7 @@ class VatReturnDetailsControllerSpec
       val response = await(controller.vat(sampleMatchIdUUID, appDate)(FakeRequest().withHeaders("CorrelationId" -> "Not a valid correlationId")))
 
       verify(mockAuditHelper, times(1)).auditApiFailure(
-        any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any())(using any())
 
       status(response) shouldBe BAD_REQUEST
       jsonBodyOf(response) shouldBe Json.parse(
@@ -160,7 +160,7 @@ class VatReturnDetailsControllerSpec
 
     "fail when insufficient enrolments" in {
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
-      `given`(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      `given`(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .willReturn(failed(InsufficientEnrolments()))
 
 
@@ -180,10 +180,10 @@ class VatReturnDetailsControllerSpec
     "return too many requests error" in {
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
 
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
 
-      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(any(), any(), any()))
+      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(using any(), any(), any()))
         .thenReturn(failed(new TooManyRequestException("error")))
 
       val response = await(controller.vat(sampleMatchIdUUID, appDate)(fakeRequest))
@@ -203,10 +203,10 @@ class VatReturnDetailsControllerSpec
     "return internal server exception error" in {
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
 
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
 
-      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(any(), any(), any()))
+      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(using any(), any(), any()))
         .thenReturn(failed(new InternalServerException("error")))
 
       val response = await(controller.vat(sampleMatchIdUUID, appDate)(fakeRequest))
@@ -226,10 +226,10 @@ class VatReturnDetailsControllerSpec
     "return invalid request when IllegalArgumentException is invoked" in {
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
 
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
 
-      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(any(), any(), any()))
+      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(using any(), any(), any()))
         .thenReturn(failed(new IllegalArgumentException("error")))
 
       val response = await(controller.vat(sampleMatchIdUUID, appDate)(fakeRequest))
@@ -248,10 +248,10 @@ class VatReturnDetailsControllerSpec
     "return internal server error when fallback Exception is invoked" in {
       when(mockScopesService.getEndPointScopes("vat")).thenReturn(Seq("test-scope"))
 
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
 
-      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(any(), any(), any()))
+      when(mockVatReturnDetailsService.get(refEq(sampleMatchIdUUID), eqTo(appDate), eqTo(Set("test-scope")))(using any(), any(), any()))
         .thenReturn(failed(new Exception("error")))
 
       val response = await(controller.vat(sampleMatchIdUUID, appDate)(fakeRequest))

@@ -55,7 +55,7 @@ class CacheServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with 
 
     "return the cached value for a given id" in new Setup {
 
-      `given`(mockClient.fetchAndGetEntry[TestClass](eqTo(cacheId.id))(any()))
+      `given`(mockClient.fetchAndGetEntry[TestClass](eqTo(cacheId.id))(using any()))
         .willReturn(Future.successful(Some(cachedValue)))
       await(cacheService.get[TestClass](cacheId, Future.successful(newValue))) shouldBe cachedValue
 
@@ -63,11 +63,11 @@ class CacheServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with 
 
     "cache the result of the fallback function when no cached value exists for a given id" in new Setup {
 
-      `given`(mockClient.fetchAndGetEntry[TestClass](eqTo(cacheId.id))(any()))
+      `given`(mockClient.fetchAndGetEntry[TestClass](eqTo(cacheId.id))(using any()))
         .willReturn(Future.successful(None))
 
       await(cacheService.get[TestClass](cacheId, Future.successful(newValue))) shouldBe newValue
-      verify(mockClient).cache[TestClass](eqTo(cacheId.id), eqTo(newValue))(any())
+      verify(mockClient).cache[TestClass](eqTo(cacheId.id), eqTo(newValue))(using any())
 
     }
 

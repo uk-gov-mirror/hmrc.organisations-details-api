@@ -18,15 +18,16 @@ package uk.gov.hmrc.organisationsdetailsapi.cache
 
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, ReplaceOptions}
+import org.mongodb.scala.result.UpdateResult
 import play.api.Configuration
 import play.api.libs.json.{Format, JsValue}
-import uk.gov.hmrc.crypto._
+import uk.gov.hmrc.crypto.*
 import uk.gov.hmrc.crypto.json.JsonEncryption
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.play.http.logging.Mdc.preservingMdc
-import org.mongodb.scala.gridfs.SingleObservableFuture
+import uk.gov.hmrc.mdc.Mdc.preservingMdc
+
 import java.time.{LocalDateTime, ZoneOffset}
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
@@ -48,14 +49,18 @@ class CacheRepository @Inject() (
         IndexModel(ascending("id"), IndexOptions().name("_id").unique(true).background(false).sparse(true)),
         IndexModel(
           ascending("modifiedDetails.lastUpdated"),
-          IndexOptions().name("lastUpdatedIndex").background(false).expireAfter(cacheConfig.cacheTtl.toLong, TimeUnit.SECONDS)
+          IndexOptions()
+            .name("lastUpdatedIndex")
+            .background(false)
+            .expireAfter(cacheConfig.cacheTtl.toLong, TimeUnit.SECONDS)
         )
       )
     ) {
 
-  implicit lazy val crypto: Encrypter with Decrypter = new ApplicationCrypto(configuration.underlying).JsonCrypto
+  implicit lazy val crypto: Encrypter & Decrypter =
+    SymmetricCryptoFactory.aesCryptoFromConfig("mongodb.encryption", configuration.underlying)
 
-  def cache[T](id: String, value: T)(implicit formats: Format[T]) = {
+  def cache[T](id: String, value: T)(implicit formats: Format[T]): Future[UpdateResult] = {
 
     val jsonEncryptor = JsonEncryption.sensitiveEncrypter[T, SensitiveT[T]]
     val encryptedValue: JsValue = jsonEncryptor.writes(SensitiveT[T](value))
@@ -98,19 +103,19 @@ class CacheRepository @Inject() (
 @Singleton
 class CacheRepositoryConfiguration @Inject() (configuration: Configuration) {
 
-  lazy val cacheEnabled = configuration
+  lazy val cacheEnabled: Boolean = configuration
     .getOptional[Boolean](
       "cache.enabled"
     )
     .getOrElse(true)
 
-  lazy val cacheTtl = configuration
+  lazy val cacheTtl: Int = configuration
     .getOptional[Int](
       "cache.ttlInSeconds"
     )
     .getOrElse(60 * 15)
 
-  lazy val collName = configuration
+  lazy val collName: String = configuration
     .getOptional[String](
       "cache.collName"
     )

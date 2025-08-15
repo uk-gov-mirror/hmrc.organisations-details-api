@@ -83,16 +83,16 @@ class SelfAssessmentControllerSpec
     "return data when called successfully with a valid request" in {
       when(mockScopesService.getEndPointScopes("self-assessment")).thenReturn(Seq("test-scope"))
 
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
 
-      when(mockSelfAssessmentService.get(refEq(sampleMatchIdUUID), eqTo("self-assessment"), eqTo(Set("test-scope")))(any(), any(), any()))
+      when(mockSelfAssessmentService.get(refEq(sampleMatchIdUUID), eqTo("self-assessment"), eqTo(Set("test-scope")))(using any(), any(), any()))
         .thenReturn(Future.successful(sampleResponse))
 
       val result = await(controller.selfAssessment(sampleMatchIdUUID)(fakeRequest))
 
       verify(mockAuditHelper, times(1)).auditApiResponse(
-        any(), any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any(), any())(using any())
 
       jsonBodyOf(result) shouldBe
         Json.parse(
@@ -115,14 +115,14 @@ class SelfAssessmentControllerSpec
     }
 
     "fail when correlationId is not provided" in {
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
       when(mockScopesService.getEndPointScopes("self-assessment")).thenReturn(Seq("test-scope"))
 
       val response = await(controller.selfAssessment(sampleMatchIdUUID)(FakeRequest()))
 
       verify(mockAuditHelper, times(1)).auditApiFailure(
-        any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any())(using any())
 
       status(response) shouldBe BAD_REQUEST
       jsonBodyOf(response) shouldBe Json.parse(
@@ -136,14 +136,14 @@ class SelfAssessmentControllerSpec
     }
 
     "fail when correlationId is not malformed" in {
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
       when(mockScopesService.getEndPointScopes("self-assessment")).thenReturn(Seq("test-scope"))
 
       val response = await(controller.selfAssessment(sampleMatchIdUUID)(FakeRequest().withHeaders("CorrelationId" -> "Not a valid correlationId")))
 
       verify(mockAuditHelper, times(1)).auditApiFailure(
-        any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any())(using any())
 
       status(response) shouldBe BAD_REQUEST
       jsonBodyOf(response) shouldBe Json.parse(

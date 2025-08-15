@@ -99,10 +99,10 @@ class NumberOfEmployeesControllerSpec
 
       when(mockScopesService.getEndPointScopes("number-of-employees")).thenReturn(Seq("test-scope"))
 
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
 
-      when(mockNumberOfEmployeesService.get(refEq(sampleMatchIdUUID), eqTo(sampleRequest), eqTo(Set("test-scope")))(any(), any(), any()))
+      when(mockNumberOfEmployeesService.get(refEq(sampleMatchIdUUID), eqTo(sampleRequest), eqTo(Set("test-scope")))(using any(), any(), any()))
         .thenReturn(Future.successful(Some(Seq(
           NumberOfEmployeesResponse(
             Some("123/RT882d"),
@@ -140,19 +140,19 @@ class NumberOfEmployeesControllerSpec
 
 
       verify(mockAuditHelper, times(1)).auditNumberOfEmployeesApiResponse(
-        any(), any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any(), any())(using any())
 
     }
 
     "fail when correlationId is not provided" in {
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
       when(mockScopesService.getEndPointScopes("number-of-employees")).thenReturn(Seq("test-scope"))
 
       val response = await(controller.numberOfEmployees(sampleMatchIdUUID)(fakeRequestNoCorrelationHeader.withBody(sampleRequestAsJson)))
 
       verify(mockAuditHelper, times(1)).auditApiFailure(
-        any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any())(using any())
 
       status(response) shouldBe BAD_REQUEST
       jsonBodyOf(response) shouldBe Json.parse(
@@ -166,7 +166,7 @@ class NumberOfEmployeesControllerSpec
     }
 
     "fail when correlationId is malformed" in {
-      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(any(), any()))
+      when(mockAuthConnector.authorise(eqTo(Enrolment("test-scope")), refEq(Retrievals.allEnrolments))(using any(), any()))
         .thenReturn(Future.successful(Enrolments(Set(Enrolment("test-scope")))))
       when(mockScopesService.getEndPointScopes("number-of-employees")).thenReturn(Seq("test-scope"))
 
@@ -175,7 +175,7 @@ class NumberOfEmployeesControllerSpec
       (fakeRequestNoCorrelationHeader.withBody(sampleRequestAsJson).withHeaders("CorrelationId" -> "Not a valid correlationId")))
 
       verify(mockAuditHelper, times(1)).auditApiFailure(
-        any(), any(), any(), any(), any())(any())
+        any(), any(), any(), any(), any())(using any())
 
       status(response) shouldBe BAD_REQUEST
       jsonBodyOf(response) shouldBe Json.parse(
