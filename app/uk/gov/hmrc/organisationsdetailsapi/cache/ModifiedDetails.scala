@@ -18,17 +18,32 @@ package uk.gov.hmrc.organisationsdetailsapi.cache
 
 import play.api.libs.functional.syntax.{toFunctionalBuilderOps, unlift}
 import play.api.libs.json.{Format, JsPath, Json}
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.{Format, JsResult, Json, Reads, Writes, __}
+import play.api.libs.json.*
 
+import java.time.{Instant, LocalDateTime, ZoneOffset}
 import java.time.LocalDateTime
 
 case class ModifiedDetails(createdAt: LocalDateTime, lastUpdated: LocalDateTime)
 
 object ModifiedDetails {
-  implicit val format: Format[ModifiedDetails] = Format(
-    (
-      (JsPath \ "createdAt").read[LocalDateTime] and
-        (JsPath \ "lastUpdated").read[LocalDateTime]
-    )(ModifiedDetails.apply),
-      Json.writes[ModifiedDetails]
+  
+  private val localDateTimeFormat: Format[LocalDateTime] = Format(
+    (__ \ "$date" \ "$numberLong").read[String].map { millis =>
+      LocalDateTime.ofInstant(Instant.ofEpochMilli(millis.toLong), ZoneOffset.UTC)
+    },
+    (dt: LocalDateTime) =>
+      Json.obj(
+        "$date" -> Json.obj(
+          "$numberLong" -> dt.toInstant(ZoneOffset.UTC).toEpochMilli.toString
+        )
+      )
   )
+
+  implicit val format: Format[ModifiedDetails] = (
+    (__ \ "createdAt").format(using localDateTimeFormat) and
+      (__ \ "lastUpdated").format(using localDateTimeFormat)
+    )(ModifiedDetails.apply, udt => (udt.createdAt, udt.lastUpdated))
+
 }
