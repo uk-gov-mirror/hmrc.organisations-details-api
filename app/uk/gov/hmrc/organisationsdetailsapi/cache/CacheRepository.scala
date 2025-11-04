@@ -28,7 +28,7 @@ import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mdc.Mdc.preservingMdc
 
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -69,8 +69,8 @@ class CacheRepository @Inject() (
       id,
       new Data(encryptedValue),
       new ModifiedDetails(
-        LocalDateTime.now(ZoneOffset.UTC),
-        LocalDateTime.now(ZoneOffset.UTC)
+        Instant.now(),
+        Instant.now()
       )
     )
 
